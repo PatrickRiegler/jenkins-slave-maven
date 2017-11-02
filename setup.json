@@ -1,0 +1,126 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "openshift-jenkins-maven",
+        "labels": {
+          "sdbi": "jenkins-slave-maven"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "from": {
+              "kind": "DockerImage",
+              "name": "artifactory.six-group.net/openshift3/jenkins-slave-maven-rhel7:latest"
+            },
+            "importPolicy": {
+              "scheduled": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-slave-maven",
+        "labels": {
+          "sdbi": "jenkins-slave-maven"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-slave-maven-pipeline",
+        "labels": {
+          "sdbi": "jenkins-slave-maven"
+        }
+      },
+      "spec": {
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-maven.git",
+            "ref": "develop"
+          },
+          "sourceSecret": {
+            "name": "bitbucket-secret"
+          }
+        },
+        "strategy": {
+          "type": "JenkinsPipeline",
+          "jenkinsPipelineStrategy": {
+            "jenkinsfilePath": "Jenkinsfile"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ImageChange",
+            "imageChange": {
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "openshift-jenkins-maven:latest"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "jenkins-slave-maven-build",
+        "labels": {
+          "sdbi": "jenkins-slave-maven"
+        }
+      },
+      "spec": {
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "ssh://git@stash.six-group.net:22/sdbi/jenkins-slave-maven.git",
+            "ref": "develop"
+          },
+          "sourceSecret": {
+            "name": "bitbucket-secret"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+            "from": {
+              "kind": "ImageStreamTag",
+              "name": "openshift-jenkins-maven:latest"
+            },
+            "forcePull": true
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "jenkins-slave-maven:latest"
+          }
+        }
+      }
+    }
+  ]
+}
