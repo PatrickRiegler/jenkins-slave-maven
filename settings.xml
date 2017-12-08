@@ -19,6 +19,11 @@
   -->
   <servers>
     <server>
+      <id>artifactory-mirror</id>
+      <username>${env.ARTIFACTORY_USERNAME}</username>
+      <password>${env.ARTIFACTORY_PASSWORD}</password>
+    </server>
+    <server>
       <id>six-group-net-release-local</id>
       <username>${env.ARTIFACTORY_USERNAME}</username>
       <password>${env.ARTIFACTORY_PASSWORD}</password>
