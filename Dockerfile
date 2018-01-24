@@ -7,6 +7,14 @@ ENV ARTIFACTORY_URL="https://artifactory.six-group.net/artifactory/torrent-snaps
      TZ="Europe/Zurich"\
      LANG="en_US.UTF-8"
 
+USER root
+
+RUN yum install -y --setopt=tsflags=nodocs bzip2 && yum clean all
+
+USER 1001
+
 RUN curl --fail --silent --show-error --output /usr/bin/dumb-init https://artifactory.six-group.net/artifactory/generic-release/dumb-init/1.2.0/dumb-init_1.2.0_amd64 \
- && chmod +x /usr/bin/dumb-init 
+ && chmod +x /usr/bin/dumb-init
+
+
 ADD settings.xml ${HOME}/.m2/
